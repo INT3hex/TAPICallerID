@@ -19,5 +19,7 @@
 
     Private Sub PopupForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         cTray.Tray.Icon = My.Resources.PhoneCall
+        sLastCaller.Text = App.sLastCaller
     End Sub
+
 End Class

@@ -24,7 +24,7 @@ Partial Class TrayForm
     Private Sub InitializeComponent()
         Me.CancelFormButton = New System.Windows.Forms.Button()
         Me.CloseAppButton = New System.Windows.Forms.Button()
-        Me.lbCalls = New System.Windows.Forms.ListBox()
+        Me.sLastCaller = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'CancelFormButton
@@ -47,14 +47,14 @@ Partial Class TrayForm
         Me.CloseAppButton.Text = "Close App"
         Me.CloseAppButton.UseVisualStyleBackColor = True
         '
-        'lbCalls
+        'sLastCaller
         '
-        Me.lbCalls.FormattingEnabled = True
-        Me.lbCalls.ItemHeight = 16
-        Me.lbCalls.Location = New System.Drawing.Point(12, 10)
-        Me.lbCalls.Name = "lbCalls"
-        Me.lbCalls.Size = New System.Drawing.Size(283, 68)
-        Me.lbCalls.TabIndex = 2
+        Me.sLastCaller.AutoSize = True
+        Me.sLastCaller.Location = New System.Drawing.Point(20, 22)
+        Me.sLastCaller.Name = "sLastCaller"
+        Me.sLastCaller.Size = New System.Drawing.Size(74, 16)
+        Me.sLastCaller.TabIndex = 2
+        Me.sLastCaller.Text = "sLastCaller"
         '
         'TrayForm
         '
@@ -62,7 +62,7 @@ Partial Class TrayForm
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(307, 125)
-        Me.Controls.Add(Me.lbCalls)
+        Me.Controls.Add(Me.sLastCaller)
         Me.Controls.Add(Me.CloseAppButton)
         Me.Controls.Add(Me.CancelFormButton)
         Me.Margin = New System.Windows.Forms.Padding(4)
@@ -72,9 +72,10 @@ Partial Class TrayForm
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Tray Application Dialog"
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
     Friend WithEvents CloseAppButton As System.Windows.Forms.Button
     Friend WithEvents CancelFormButton As System.Windows.Forms.Button
-    Public WithEvents lbCalls As ListBox
+    Friend WithEvents sLastCaller As Label
 End Class

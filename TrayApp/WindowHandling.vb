@@ -13,7 +13,8 @@
         Dim hWnd As Integer
         Dim rc As Integer
 
-        DebugPrint("FindWindow Captiom: " & strWindowCaption)
+        'Find window
+        DebugPrint("FindWindow Caption: " & strWindowCaption)
         hWnd = FindWindow(vbNullString, strWindowCaption)
 
         If hWnd > 0 Then
@@ -26,7 +27,7 @@
             If InStr(strClassNameFound.ToString, strClassName) Then
 
                 SetForegroundWindow(hWnd)
-                If IsIconic(hWnd) Then  'Restore if minimized
+                If IsIconic(hWnd) Then  'Restore window if minimized
                     ShowWindow(hWnd, SW_RESTORE)
                 Else
                     ShowWindow(hWnd, SW_SHOW)

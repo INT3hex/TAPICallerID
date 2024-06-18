@@ -14,6 +14,7 @@ Namespace namespace_tapi
         Public Function Initialize() As String
             Dim TAPI As New TAPI
             Dim MediaTypes As Integer
+            Dim sTAPIlist As String = ""
             TAPI.Initialize()
             gobjTapi = TAPI
             TAPI = Nothing
@@ -21,6 +22,7 @@ Namespace namespace_tapi
             For Each Address As ITAddress In AddressCollection
                 If Address.State = ADDRESS_STATE.AS_INSERVICE Then
                     ' next line just qualifies a specific TAPI provider
+                    sTAPIlist = sTAPIlist & vbCrLf & Address.AddressName
                     If Address.AddressName = sSIPAddr Then
                         Dim MediaSupport As ITMediaSupport = Address
                         MediaTypes = MediaSupport.MediaTypes
@@ -37,7 +39,8 @@ Namespace namespace_tapi
                 glngToken = gobjTapi.RegisterCallNotifications(gobjAddress, True, False, MediaAudio, 1)
                 Initialize = gobjAddress.AddressName
             Else
-                Initialize = "Initializing failed"
+                Debug.Print("Initialisierung fehlgeschlagen - konfigurierte TAPI-ID nicht gefunden.")
+                Initialize = "Initialisierung fehlgeschlagen: " & vbCrLf & sSIPAddr & vbCrLf & vbCrLf & "Bitte eine der folgenden TAPI-IDs konfigurieren:" & sTAPIlist
             End If
         End Function
         Private Sub gobjTapi_Event(ByVal TapiEvent As TAPI3Lib.TAPI_EVENT, ByVal pEvent As Object) Handles gobjTapi.Event
@@ -47,7 +50,7 @@ Namespace namespace_tapi
                     Dim CallNotificationEvent As ITCallNotificationEvent
                     CallNotificationEvent = CType(pEvent, ITCallNotificationEvent)
 
-                    Debug.Print(CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER))
+                    Debug.Print("TE_CALLNOTIFICATION:" & CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER))
                     RaiseEvent IncommingCall(CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER), CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME))
             End Select
         End Sub

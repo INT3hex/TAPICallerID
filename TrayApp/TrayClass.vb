@@ -6,7 +6,7 @@ Imports System.Threading
 Public Class TrayClass
     Inherits ApplicationContext
 
-#Region " Storage "
+#Region " Variables "
 
     Public WithEvents Tray As NotifyIcon
     Private WithEvents MainMenu As ContextMenuStrip
@@ -19,6 +19,7 @@ Public Class TrayClass
     Private WithEvents mnuNumber3 As ToolStripMenuItem
     Private WithEvents img As Image
     Private WithEvents mnu As ToolStripMenuItem
+    Public bTrayPrevent As Boolean
 
 
 
@@ -44,7 +45,7 @@ Public Class TrayClass
         Tray = New NotifyIcon
         Tray.Icon = My.Resources.Phone
         Tray.ContextMenuStrip = MainMenu
-        Tray.Text = "T2MedTAPI"
+        Tray.Text = "T2TAPI"
 
         'Display
         Tray.Visible = True
@@ -70,7 +71,7 @@ Public Class TrayClass
         'TrayForm.lbCalls = App.globalListbox
         'Debug.WriteLine("TrayForm.lbCalls:" & TrayForm.lbCalls.Items.Count)
         'Debug.WriteLine("TrayForm.lbCalls_text:" & TrayForm.lbCalls.GetItemText(1))
-        ShowDialog()
+        'ShowDialog()
     End Sub
 
     Private Sub mnuExit_Click(ByVal sender As Object, ByVal e As System.EventArgs) _
@@ -88,7 +89,7 @@ Public Class TrayClass
         If iPos > 0 Then
 
             Dim sPatientID As String = Right(iClickedMnu.Text, Len(iClickedMnu.Text) - iPos)
-            DebugPrint("Call T2MedSearch with PatientID: " & sPatientID)
+            DebugPrint("Aufruf von T2MedSearch mit PatientID: " & sPatientID)
             'Debug.WriteLine(T2medSearch(iClickedMnu.Text))
             T2medSearch(sPatientID)
         End If
@@ -97,12 +98,16 @@ Public Class TrayClass
 
     Private Sub Tray_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) _
     Handles Tray.DoubleClick
+        DebugPrint("Tray_DoubleClick-Event arrived")
+        bTrayPrevent = True
         'TrayApp.App.globalListbox.Items.Add(DateTime.Now.ToString() & "Test")
         ShowDialog()
+        bTrayPrevent = True
     End Sub
 
     Private Sub Tray_MouseDown(sender As Object, e As MouseEventArgs) Handles Tray.MouseDown
-        TrayForm.lbCalls = TrayApp.App.globalListbox
+        'TrayForm.lbCalls = TrayApp.App.globalListbox
+        DebugPrint("Tray_MouseDown: " & e.Button)
         If e.Button = MouseButtons.Left Then
             'Build new Caller Menu
             'For i = 0 To TrayApp.App.globalListbox.Items.Count
@@ -119,7 +124,10 @@ Public Class TrayClass
         End If
 
         Dim mi = GetType(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.NonPublic Or BindingFlags.Instance)
-        mi.Invoke(Tray, Nothing)
+        If bTrayPrevent <> True Then
+            mi.Invoke(Tray, Nothing)
+        End If
+        bTrayPrevent = False
     End Sub
 
     Private Function GenMnuItem(ByRef sCall As String) As ToolStripMenuItem
@@ -147,10 +155,10 @@ Public Class TrayClass
     Private Function T2medSearch(ByVal sPatient As String) As Integer
 
         Dim hT2med As Long = FocusWindow(wndT2Caption, wndT2Class)
-        'Handle auf T2Med Client
+        'get handle for T2Med Client
         If hT2med > 0 Then
 
-            'Enumerate T2Med Window-Controls
+            'Enumerate T2Med window-controls
             Dim wndElement As AutomationElement = AutomationElement.FromHandle(hT2med)
             If wndElement IsNot Nothing Then
 
@@ -179,24 +187,24 @@ Public Class TrayClass
                             ' Suchtext in das Textfeld einfügen
                             valuePattern.SetValue(sPatient)
                             Thread.Sleep(1000)
-                            Console.WriteLine("   Suchtext wurde erfolgreich in das Textfeld eingefügt.")
+                            Console.WriteLine("Suchtext wurde erfolgreich in das Textfeld eingefügt.")
                             wndElement = AutomationElement.FromHandle(hT2med)
                             Console.WriteLine("Enumeriere erneut die Controls.")
                             Dim controlCollection As AutomationElementCollection = wndElement.FindAll(TreeScope.Children, imageCondition)
-                            Console.WriteLine("  Anzahl ImageControls:" & controlCollection.Count)
+                            Console.WriteLine("Debug: Anzahl ImageControls:" & controlCollection.Count)
                             Dim next2Element As AutomationElement = controlCollection(1)
-                            Console.WriteLine("  next2Element:" & controlCollection(1).Current.AutomationId)
+                            Console.WriteLine("Debug: next2Element:" & controlCollection(1).Current.AutomationId)
                             If next2Element.Current.ControlType.ProgrammaticName = "ControlType.Image" Then
-                                Console.WriteLine("Element vermutlich korrekt gefunden. OK!")
+                                Console.WriteLine("Element vermutlich korrekt gefunden. GO!")
                                 next2Element.SetFocus()
                                 SendKeys.Send("~")
                             End If
                         Else
-                            Console.WriteLine("Das Steuerelement unterstützt kein ValuePattern.")
+                            Console.WriteLine("Oha! Das Steuerelement unterstützt kein ValuePattern.")
                             Return 2 ' Control not found
                         End If
                     Else
-                        Console.WriteLine("Leider nicht das richtige Steuerelement gefunden.")
+                        Console.WriteLine("Oha! Leider nicht das richtige Steuerelement gefunden.")
                         Return 2 ' Control not found
                     End If
                     Return 0 ' OK
@@ -204,7 +212,7 @@ Public Class TrayClass
             End If
             Return 2 ' Control not found
         Else
-            Debug.WriteLine("T2Med Applikation nicht gefunden.")
+            Debug.WriteLine("Oha! T2Med Applikation nicht gefunden.")
             Return 1 ' T2Med not found
         End If
     End Function
