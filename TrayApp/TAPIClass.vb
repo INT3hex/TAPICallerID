@@ -39,7 +39,7 @@ Namespace namespace_tapi
                 glngToken = gobjTapi.RegisterCallNotifications(gobjAddress, True, False, MediaAudio, 1)
                 Initialize = gobjAddress.AddressName
             Else
-                Debug.Print("Initialisierung fehlgeschlagen - konfigurierte TAPI-ID nicht gefunden.")
+                DebugPrint("TAPI: TAPIClass Initialisierung fehlgeschlagen - konfigurierte TAPI-ID nicht gefunden.")
                 Initialize = "Initialisierung fehlgeschlagen: " & vbCrLf & sSIPAddr & vbCrLf & vbCrLf & "Bitte eine der folgenden TAPI-IDs konfigurieren:" & sTAPIlist
             End If
         End Function
@@ -50,8 +50,8 @@ Namespace namespace_tapi
                     Dim CallNotificationEvent As ITCallNotificationEvent
                     CallNotificationEvent = CType(pEvent, ITCallNotificationEvent)
 
-                    Debug.Print("TE_CALLNOTIFICATION:" & CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER))
-                    RaiseEvent IncommingCall(CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER), CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME))
+                    DebugPrint("TAPI: TAPIClass Event TE_CALLNOTIFICATION:" & CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER))
+                    RaiseEvent IncomingCall(CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER), CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME))
             End Select
         End Sub
         Public Sub ShutDown()
@@ -60,6 +60,6 @@ Namespace namespace_tapi
             glngToken = Nothing
             gobjTapi.Shutdown()
         End Sub
-        Public Event IncommingCall(ByVal strCallerID, ByVal strCallerIDName)
+        Public Event IncomingCall(ByVal strCallerID, ByVal strCallerIDName)
     End Class
 End Namespace

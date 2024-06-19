@@ -21,12 +21,8 @@ Public Class TrayClass
     Private WithEvents mnu As ToolStripMenuItem
     Public bTrayPrevent As Boolean
 
-
-
-    ' Read from configuration
-    Public wndT2Class As String = App._appConfig.GetProperty("wndT2Class", "GlassWndClass-GlassWindowClass-")
-    Public wndT2Caption As String = App._appConfig.GetProperty("wndT2Caption", "t2med")
-    'Public wndT2SearchControl As String = App._appConfig.GetProperty("wndT2SearchControl", "ControlType.Image")
+    ' Read definitions from configuration
+    Public bDirectSearchOnDblClick As Boolean = App._appConfig.GetProperty("bDirectSearchOnDblClick", True)
 
 
 #End Region
@@ -35,7 +31,7 @@ Public Class TrayClass
 
     Public Sub New()
         'Initialize the menus
-        mnuDisplayForm = New ToolStripMenuItem("Letzte Anrufe")
+        mnuDisplayForm = New ToolStripMenuItem("Letzter Anruf")
         mnuSep1 = New ToolStripSeparator()
         mnuExit = New ToolStripMenuItem("Programmende")
         MainMenu = New ContextMenuStrip
@@ -68,10 +64,7 @@ Public Class TrayClass
 
     Private Sub mnuDisplayForm_Click(ByVal sender As Object, ByVal e As System.EventArgs) _
     Handles mnuDisplayForm.Click
-        'TrayForm.lbCalls = App.globalListbox
-        'Debug.WriteLine("TrayForm.lbCalls:" & TrayForm.lbCalls.Items.Count)
-        'Debug.WriteLine("TrayForm.lbCalls_text:" & TrayForm.lbCalls.GetItemText(1))
-        'ShowDialog()
+        ShowDialog()
     End Sub
 
     Private Sub mnuExit_Click(ByVal sender As Object, ByVal e As System.EventArgs) _
@@ -85,29 +78,26 @@ Public Class TrayClass
         Dim iClickedMnu As ToolStripMenuItem
         iClickedMnu = CType(sender, ToolStripMenuItem)
 
-        Dim iPos As Integer = InStr(iClickedMnu.Text, "#")
-        If iPos > 0 Then
-
-            Dim sPatientID As String = Right(iClickedMnu.Text, Len(iClickedMnu.Text) - iPos)
-            DebugPrint("Aufruf von T2MedSearch mit PatientID: " & sPatientID)
-            'Debug.WriteLine(T2medSearch(iClickedMnu.Text))
-            T2medSearch(sPatientID)
-        End If
+        T2medSearchID(iClickedMnu.Text)
 
     End Sub
 
     Private Sub Tray_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) _
     Handles Tray.DoubleClick
-        DebugPrint("Tray_DoubleClick-Event arrived")
+        DebugPrint("TrayClass: Tray_DoubleClick-Event arrived")
         bTrayPrevent = True
         'TrayApp.App.globalListbox.Items.Add(DateTime.Now.ToString() & "Test")
-        ShowDialog()
+        If bDirectSearchOnDblClick = False Then
+            ShowDialog()
+        Else
+            T2medSearchID(App.sLastCaller)
+        End If
         bTrayPrevent = True
     End Sub
 
     Private Sub Tray_MouseDown(sender As Object, e As MouseEventArgs) Handles Tray.MouseDown
         'TrayForm.lbCalls = TrayApp.App.globalListbox
-        DebugPrint("Tray_MouseDown: " & e.Button)
+        DebugPrint("TrayClass: Tray_MouseDown: " & e.Button)
         If e.Button = MouseButtons.Left Then
             'Build new Caller Menu
             'For i = 0 To TrayApp.App.globalListbox.Items.Count
@@ -131,10 +121,9 @@ Public Class TrayClass
     End Sub
 
     Private Function GenMnuItem(ByRef sCall As String) As ToolStripMenuItem
-        If InStr(sCall, "o") Then
+        'DebugPrint("GenMenuItem:" & sCall)
+        If InStr(sCall, "#") Then
             img = TrayApp.My.Resources.PhoneCall.ToBitmap
-            'Dim ico As Icon = TrayApp.My.Resources.PhoneCall
-            'img = FromIconToBitmap(ico)
         Else
             img = TrayApp.My.Resources.PhoneGrey.ToBitmap
         End If
@@ -152,69 +141,6 @@ Public Class TrayClass
     End Function
 #End Region
 
-    Private Function T2medSearch(ByVal sPatient As String) As Integer
 
-        Dim hT2med As Long = FocusWindow(wndT2Caption, wndT2Class)
-        'get handle for T2Med Client
-        If hT2med > 0 Then
-
-            'Enumerate T2Med window-controls
-            Dim wndElement As AutomationElement = AutomationElement.FromHandle(hT2med)
-            If wndElement IsNot Nothing Then
-
-                ' Such-Control condition (fix: Edit & "Suche")
-                Dim controlCondition As New AndCondition(
-                    New PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit),
-                    New PropertyCondition(ValuePattern.ValueProperty, "Suche"))
-
-                ' Treffer-Control condition (fix: Image)
-                Dim imageCondition As New PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Image)
-
-                ' Finde Such-Control
-                Dim controlElement As AutomationElement = wndElement.FindFirst(TreeScope.Descendants, controlCondition)
-
-                If controlElement IsNot Nothing Then
-                    Console.WriteLine("Control 'Suche' gefunden. Typ:" & controlElement.Current.ControlType.ProgrammaticName & " " & controlElement.Current.AutomationId)
-                    Dim nextElement As AutomationElement = TreeWalker.RawViewWalker.GetNextSibling(controlElement)
-                    'Console.WriteLine("  Next ist:" & parentElement.Current.Name)
-                    Console.WriteLine("  NextControl (sollte Image sein) ist:" & nextElement.Current.ControlType.ProgrammaticName & " " & nextElement.Current.AutomationId)
-
-                    If nextElement.Current.ControlType.ProgrammaticName = "ControlType.Image" Then
-                        ' Send Search
-                        Console.WriteLine("NextControl gefunden. Suche Patient.")
-                        Dim valuePattern As ValuePattern = TryCast(controlElement.GetCurrentPattern(ValuePattern.Pattern), ValuePattern)
-                        If valuePattern IsNot Nothing Then
-                            ' Suchtext in das Textfeld einfügen
-                            valuePattern.SetValue(sPatient)
-                            Thread.Sleep(1000)
-                            Console.WriteLine("Suchtext wurde erfolgreich in das Textfeld eingefügt.")
-                            wndElement = AutomationElement.FromHandle(hT2med)
-                            Console.WriteLine("Enumeriere erneut die Controls.")
-                            Dim controlCollection As AutomationElementCollection = wndElement.FindAll(TreeScope.Children, imageCondition)
-                            Console.WriteLine("Debug: Anzahl ImageControls:" & controlCollection.Count)
-                            Dim next2Element As AutomationElement = controlCollection(1)
-                            Console.WriteLine("Debug: next2Element:" & controlCollection(1).Current.AutomationId)
-                            If next2Element.Current.ControlType.ProgrammaticName = "ControlType.Image" Then
-                                Console.WriteLine("Element vermutlich korrekt gefunden. GO!")
-                                next2Element.SetFocus()
-                                SendKeys.Send("~")
-                            End If
-                        Else
-                            Console.WriteLine("Oha! Das Steuerelement unterstützt kein ValuePattern.")
-                            Return 2 ' Control not found
-                        End If
-                    Else
-                        Console.WriteLine("Oha! Leider nicht das richtige Steuerelement gefunden.")
-                        Return 2 ' Control not found
-                    End If
-                    Return 0 ' OK
-                End If
-            End If
-            Return 2 ' Control not found
-        Else
-            Debug.WriteLine("Oha! T2Med Applikation nicht gefunden.")
-            Return 1 ' T2Med not found
-        End If
-    End Function
 
 End Class

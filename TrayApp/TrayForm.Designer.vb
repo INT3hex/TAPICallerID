@@ -23,7 +23,7 @@ Partial Class TrayForm
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.CancelFormButton = New System.Windows.Forms.Button()
-        Me.CloseAppButton = New System.Windows.Forms.Button()
+        Me.SearchAppButton = New System.Windows.Forms.Button()
         Me.sLastCaller = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
@@ -33,49 +33,51 @@ Partial Class TrayForm
         Me.CancelFormButton.Margin = New System.Windows.Forms.Padding(4)
         Me.CancelFormButton.Name = "CancelFormButton"
         Me.CancelFormButton.Size = New System.Drawing.Size(100, 28)
-        Me.CancelFormButton.TabIndex = 0
-        Me.CancelFormButton.Text = "Cancel"
+        Me.CancelFormButton.TabIndex = 1
+        Me.CancelFormButton.Text = "Abbrechen"
         Me.CancelFormButton.UseVisualStyleBackColor = True
         '
-        'CloseAppButton
+        'SearchAppButton
         '
-        Me.CloseAppButton.Location = New System.Drawing.Point(179, 88)
-        Me.CloseAppButton.Margin = New System.Windows.Forms.Padding(4)
-        Me.CloseAppButton.Name = "CloseAppButton"
-        Me.CloseAppButton.Size = New System.Drawing.Size(100, 28)
-        Me.CloseAppButton.TabIndex = 1
-        Me.CloseAppButton.Text = "Close App"
-        Me.CloseAppButton.UseVisualStyleBackColor = True
+        Me.SearchAppButton.Location = New System.Drawing.Point(153, 88)
+        Me.SearchAppButton.Margin = New System.Windows.Forms.Padding(4)
+        Me.SearchAppButton.Name = "SearchAppButton"
+        Me.SearchAppButton.Size = New System.Drawing.Size(157, 28)
+        Me.SearchAppButton.TabIndex = 0
+        Me.SearchAppButton.Text = "In T2med aufrufen"
+        Me.SearchAppButton.UseVisualStyleBackColor = True
         '
         'sLastCaller
         '
         Me.sLastCaller.AutoSize = True
-        Me.sLastCaller.Location = New System.Drawing.Point(20, 22)
+        Me.sLastCaller.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.sLastCaller.Location = New System.Drawing.Point(26, 30)
         Me.sLastCaller.Name = "sLastCaller"
-        Me.sLastCaller.Size = New System.Drawing.Size(74, 16)
+        Me.sLastCaller.Size = New System.Drawing.Size(82, 18)
         Me.sLastCaller.TabIndex = 2
         Me.sLastCaller.Text = "sLastCaller"
         '
         'TrayForm
         '
-        Me.AcceptButton = Me.CancelFormButton
+        Me.AcceptButton = Me.SearchAppButton
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(307, 125)
+        Me.ClientSize = New System.Drawing.Size(356, 125)
         Me.Controls.Add(Me.sLastCaller)
-        Me.Controls.Add(Me.CloseAppButton)
+        Me.Controls.Add(Me.SearchAppButton)
         Me.Controls.Add(Me.CancelFormButton)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.MaximizeBox = False
         Me.MinimizeBox = False
         Me.Name = "TrayForm"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "Tray Application Dialog"
+        Me.Text = "T2TAPI - letzter Anruf"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents CloseAppButton As System.Windows.Forms.Button
+    Friend WithEvents SearchAppButton As System.Windows.Forms.Button
     Friend WithEvents CancelFormButton As System.Windows.Forms.Button
     Friend WithEvents sLastCaller As Label
 End Class
