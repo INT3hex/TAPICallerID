@@ -72,5 +72,5 @@ Beispielkonfiguration:
 Die TrayApp erstellt aktuell kein Logfile - jedoch können interne Debuginformationen (z.B. Fehlermeldungen, Debugausgaben, usw.) zur Laufzeit mittels [Sysinternals DebugView](https://learn.microsoft.com/de-de/sysinternals/downloads/debugview) angezeigt werden.
 
 ## Disclaimer
-Für die Nutzung, Eignung, Fehlerfreiheit, Nützlichkeit etc. der Software wird keine Haftung übernommen. Die Anwendung und Anleitung wurde nach bestem Wissen erstellt. Der Quellcode kann eingesehen (und beliebig kopiert und verändert) werden. Das bereitgestellte Binärfile TrayApp.exe in v1.0 wurde bei Virustotal validiert. 
-[Virustotal Analyse](https://www.virustotal.com/gui/file/123def58a400cafe24bfa4b602b2ea53966953ee6b36893eacdafb6517132049)
+Für die Nutzung, Eignung, Fehlerfreiheit, Nützlichkeit etc. der Software wird keine Haftung übernommen. Die Anwendung und Anleitung wurde nach bestem Wissen erstellt. Der Quellcode kann eingesehen (und beliebig kopiert und verändert) werden. Das bereitgestellte Binärfile TrayApp.exe in v1.0c wurde bei Virustotal validiert. 
+[Virustotal Analyse](https://www.virustotal.com/gui/file/51e21b47f53f32e3534c1ef402b6ca4d442f26583fd4eedbae07db8151c67134)
