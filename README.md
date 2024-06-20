@@ -1,6 +1,7 @@
 # TAPICallerID (für T2med)
 TAPICallerID ist eine kleine TrayApp, die über ein TAPI-Device ([s. Microsoft TAPI Übersicht](https://learn.microsoft.com/de-de/windows/win32/tapi/telephony-application-programming-interfaces)) eine CTI-Integration in die Praxissoftware T2med ermöglicht. (Eine Nutzung ist nur in Verbindung mit T2med sinnvoll - getestet bis Version 24.6.4)
 Dabei werden eingehende Anrufe (z.B. von einer Fritzbox oder sonstigen Telefonanlage) in der TrayIcon-Leiste signalisiert und der zur Rufnummer passende Patienteneintrag kann mit einem Doppelklick direkt im Praxisverwaltungssystem aufgerufen werden.
+
 ![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/TrayIcon.png)
 - Die Suche des Patienteneintrags in der T2med-Anwendung erfolgt dabei über die interne T2med Patientennummer.
 - Die Telefonnummern-Erkennung und Zuordnung zu Name bzw. Patientennummer erfolgt
