@@ -39,6 +39,7 @@ Public Module App
 
     Public Sub Main()
         ' Init TAPI
+        DebugPrint("MAIN: TAPICallerID für T2med gestartet.")
         DebugPrint("MAIN: Initialisiere TAPI.")
         Dim localTAPI As New namespace_tapi.TAPIClass
         Dim sTapiID As String = localTAPI.Initialize()
@@ -50,6 +51,8 @@ Public Module App
             'print error message
             MsgBox("TAPI " & sTapiID)
             globalTAPI = Nothing
+            Application.Exit()
+            End
         End If
         localTAPI = Nothing
 
@@ -67,7 +70,7 @@ Public Module App
 
                     'NormalizePhoneNumbers
                     'DebugPrint("Norm_0:" & fields(iCsvPosTel1) & " " & fields(iCsvPosTel2) & " " & fields(iCsvPosTel3) & " " & fields(iCsvPosTel4))
-                    'DebugPrint("Norm_1:" & NormalizePhoneNumber(fields(iCsvPosTel1)) & " " & NormalizePhoneNumber(fields(iCsvPosTel2)) & " " & NormalizePhoneNumber(fields(iCsvPosTel3)) & " " & NormalizePhoneNumber(fields(iCsvPosTel4)))
+                    DebugPrint("Norm_1:" & NormalizePhoneNumber(fields(iCsvPosTel1)) & " " & NormalizePhoneNumber(fields(iCsvPosTel2)) & " " & NormalizePhoneNumber(fields(iCsvPosTel3)) & " " & NormalizePhoneNumber(fields(iCsvPosTel4)))
                     oPBEntry.Numbers = NormalizePhoneNumber(fields(iCsvPosTel1)) & " " & NormalizePhoneNumber(fields(iCsvPosTel2)) & " " & NormalizePhoneNumber(fields(iCsvPosTel3)) & " " & NormalizePhoneNumber(fields(iCsvPosTel4))
 
                     aPhoneBook.Add(oPBEntry)
@@ -90,13 +93,13 @@ Public Module App
     End Sub
 
     Public Function NormalizePhoneNumber(ByRef sNumber As String) As String
-        sNumber = Regex.Replace(sNumber, "[^0-9+()]", "", RegexOptions.IgnoreCase)
+        sNumber = Regex.Replace(sNumber, "[^0-9+*]", "", RegexOptions.IgnoreCase)
         sNumber = sNumber.Replace("(", "")
         sNumber = sNumber.Replace(")", "")
         sNumber = sNumber.Replace(" ", "")
         Dim M As Match = Regex.Match(sNumber, "^\+([\S\s]*) ")
         Dim LandesVorwahl As String = M.Groups(1).Value
-        sNumber = Regex.Replace(sNumber, "[^0-9+()]", "", RegexOptions.IgnoreCase)
+        sNumber = Regex.Replace(sNumber, "[^0-9+*]", "", RegexOptions.IgnoreCase)
         sNumber = Regex.Replace(sNumber, "^\+", "00", RegexOptions.IgnoreCase)
         sNumber = Regex.Replace(sNumber, LandesVorwahl & "\(.\)", LandesVorwahl, RegexOptions.IgnoreCase)
         If (Len(sNumber) > 1) And (Left(sNumber, 1) <> "0") Then sNumber = sCsvVorwahl & sNumber
@@ -111,45 +114,49 @@ Public Module App
         '    End Sub)
 
         DebugPrint("TAPI: IncomingCall")
-        If TrayApp.App.globalListbox.Items.Count > 2 Then TrayApp.App.globalListbox.Items.RemoveAt(0)
 
-        If strCallerIDName = "" Then strCallerIDName = strCallerID
+        If Len(strCallerID) > 1 Then ' if CallerID is somehow available
 
-        ' check if CallerIDName has # pattern as PatientenID
-        If InStr(strCallerIDName, "#") = 0 Then
-            DebugPrint("TAPI: CallerIDName enthält kein Kennzeichen für PatientenID")
-            ' add info from CSV
-            ' DebugPrint("Durchsuche Phonebookeinträge:" & aPhoneBook.Count)
-            For Each item As PHONEBOOKENTRY In aPhoneBook
-                If InStr(item.Numbers, strCallerID) > 0 Then
-                    DebugPrint("TAPI/CSV: Telefoneintrag für " & item.Name & "|" & item.ID & " gefunden.")
-                    strCallerIDName = strCallerIDName & " #" & item.ID
-                    Exit For
-                End If
-            Next
+            If TrayApp.App.globalListbox.Items.Count > 2 Then TrayApp.App.globalListbox.Items.RemoveAt(0)
+
+            If strCallerIDName = "" Then strCallerIDName = strCallerID
+
+            ' check if CallerIDName has # pattern as PatientenID
+            If InStr(strCallerIDName, "#") = 0 Then
+                DebugPrint("TAPI: CallerIDName enthält kein Kennzeichen für PatientenID")
+                ' add info from CSV
+                ' DebugPrint("Durchsuche Phonebookeinträge:" & aPhoneBook.Count)
+                For Each item As PHONEBOOKENTRY In aPhoneBook
+                    If InStr(item.Numbers, strCallerID) > 0 Then
+                        DebugPrint("TAPI/CSV: Telefoneintrag für " & item.Name & "|" & item.ID & " gefunden.")
+                        strCallerIDName = item.Name & " #" & item.ID
+                        Exit For
+                    End If
+                Next
+            End If
+
+            DebugPrint("TAPI: Eingehender Anruf von CallerID:" & strCallerID & " CallerIDName:" & strCallerIDName)
+
+            'add caller to tray
+            TrayApp.App.globalListbox.Items.Add(DateTime.Now.ToString("HH:mm:ss") & " " & strCallerIDName)
+            sLastCaller = strCallerIDName
+
+
+            ' blink icon while receiving new call
+            For i = 1 To 10
+                Threading.Thread.Sleep(300)
+
+                TrayForm.Icon = My.Resources.PhoneCall
+                cTray.Tray.Icon = My.Resources.PhoneCall
+                TrayForm.Refresh()
+
+                Threading.Thread.Sleep(300)
+
+                TrayForm.Icon = My.Resources.Phone
+                cTray.Tray.Icon = My.Resources.Phone
+                TrayForm.Refresh()
+            Next i
         End If
-
-        DebugPrint("TAPI: Eingehender Anruf von CallerID:" & strCallerID & " CallerIDName:" & strCallerIDName)
-
-        'add caller to tray
-        TrayApp.App.globalListbox.Items.Add(DateTime.Now.ToString("HH:mm:ss") & " " & strCallerIDName)
-        sLastCaller = strCallerIDName
-
-
-        ' blink icon while receiving new call
-        For i = 1 To 10
-            Threading.Thread.Sleep(300)
-
-            TrayForm.Icon = My.Resources.PhoneCall
-            cTray.Tray.Icon = My.Resources.PhoneCall
-            TrayForm.Refresh()
-
-            Threading.Thread.Sleep(300)
-
-            TrayForm.Icon = My.Resources.Phone
-            cTray.Tray.Icon = My.Resources.Phone
-            TrayForm.Refresh()
-        Next i
     End Sub
 
 End Module

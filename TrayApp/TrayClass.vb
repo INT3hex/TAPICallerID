@@ -41,7 +41,7 @@ Public Class TrayClass
         Tray = New NotifyIcon
         Tray.Icon = My.Resources.Phone
         Tray.ContextMenuStrip = MainMenu
-        Tray.Text = "T2TAPI"
+        Tray.Text = "TAPICallerID"
 
         'Display
         Tray.Visible = True
@@ -71,6 +71,7 @@ Public Class TrayClass
     Handles mnuExit.Click
         If Not IsNothing(globalTAPI) Then globalTAPI.ShutDown()
         ExitApplication()
+        End
     End Sub
 
     Private Sub mnuNumber_Click(ByVal sender As Object, ByVal e As System.EventArgs) _
