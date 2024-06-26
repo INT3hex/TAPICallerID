@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppConfigClass.vb" />
+    <Compile Include="HotKeyClass.vb" />
     <Compile Include="TAPIClass.vb" />
     <Compile Include="WindowHandling.vb" />
     <Compile Include="TrayClass.vb" />

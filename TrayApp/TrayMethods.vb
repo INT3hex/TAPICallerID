@@ -5,6 +5,8 @@
     Public Sub ExitApplication()
         'Perform any clean-up here
         'Then exit the application
+        DebugPrint("TrayMethods: Exiting... Unregister Hotkey and end application.")
+        HotKeyClass.unregisterHotkeys(MainForm)
         Application.Exit()
     End Sub
 

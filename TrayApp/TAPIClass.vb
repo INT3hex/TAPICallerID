@@ -45,13 +45,23 @@ Namespace namespace_tapi
         End Function
         Private Sub gobjTapi_Event(ByVal TapiEvent As TAPI3Lib.TAPI_EVENT, ByVal pEvent As Object) Handles gobjTapi.Event
             DebugPrint("TAPIEvent: " & TapiEvent)
+            Dim sEventCallerIDName As String
             Select Case TapiEvent
                 Case TAPI_EVENT.TE_CALLNOTIFICATION 'Call Notification Arrived
                     Dim CallNotificationEvent As ITCallNotificationEvent
                     CallNotificationEvent = CType(pEvent, ITCallNotificationEvent)
 
                     DebugPrint("TAPI: TAPIClass Event TE_CALLNOTIFICATION:" & CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER))
-                    RaiseEvent IncomingCall(CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER), CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME))
+
+                    Try
+                        sEventCallerIDName = CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME)
+                    Catch ex As Exception
+                        DebugPrint("TAPI: got Execption - CallerID is NULL:" & ex.Message)
+                        sEventCallerIDName = CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER)
+                    End Try
+
+                    DebugPrint("TAPI: Notification CallerIDName & CallerIDNumber: " & CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER) & " " & sEventCallerIDName)
+                    RaiseEvent IncomingCall(CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER), sEventCallerIDName)
             End Select
         End Sub
         Public Sub ShutDown()

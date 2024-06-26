@@ -1,4 +1,5 @@
 ﻿
+Imports System.Globalization
 Imports System.IO
 Imports System.Reflection.Emit
 Imports System.Text
@@ -36,6 +37,8 @@ Public Module App
     Dim iCsvPosTel2 As Integer = App._appConfig.GetProperty("iCsvPosTel2", 29)
     Dim iCsvPosTel3 As Integer = App._appConfig.GetProperty("iCsvPosTel3", 30)
     Dim iCsvPosTel4 As Integer = App._appConfig.GetProperty("iCsvPosTel4", 31)
+    Dim iHotKey As Integer = App._appConfig.GetProperty("iHotKey", 183)
+    Dim iHotKeyModifier As Integer = App._appConfig.GetProperty("iHotKeyModifier", 0)
 
     Public Sub Main()
         ' Init TAPI
@@ -82,6 +85,12 @@ Public Module App
 
         'Turn visual styles back on
         Application.EnableVisualStyles()
+
+        'Register global Hotkey
+        ' z.B. asc("W"), HotKeyClass.KeyModifier.Alt = Alt+W
+        '      183, 0 = VK_LAUNCH_APP2 (Calculator Key)
+        ' see http://www.kbdedit.com/manual/low_level_vk_list.html or Google for virtual keys & modifier
+        HotKeyClass.registerHotkey(MainForm, iHotKey, iHotKeyModifier)
 
         'Run the application using AppContext
         Application.Run(cTray)
