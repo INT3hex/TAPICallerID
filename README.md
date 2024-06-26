@@ -1,6 +1,6 @@
 # TAPICallerID (für T2med)
 TAPICallerID ist eine kleine TrayApp, die über ein TAPI-Device ([s. Microsoft TAPI Übersicht](https://learn.microsoft.com/de-de/windows/win32/tapi/telephony-application-programming-interfaces)) eine CTI-Integration in die Praxissoftware T2med ermöglicht. (Eine Nutzung ist nur in Verbindung mit T2med sinnvoll - getestet bis Version 24.6.4)
-Dabei werden eingehende Anrufe (z.B. von einer Fritzbox oder sonstigen Telefonanlage) in der TrayIcon-Leiste signalisiert und der zur Rufnummer passende Patienteneintrag kann mit einem Doppelklick direkt im Praxisverwaltungssystem aufgerufen werden.
+Dabei werden eingehende Anrufe (z.B. von einer Fritzbox oder sonstigen Telefonanlage) in der TrayIcon-Leiste signalisiert und der zur Rufnummer passende Patienteneintrag kann mit einem Doppelklick und *neu* mittels HotKey direkt im Praxisverwaltungssystem aufgerufen werden.
 
 ![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/TrayIcon.png)
 - Die Suche des Patienteneintrags in der T2med-Anwendung erfolgt dabei über die interne T2med Patientennummer.
@@ -64,10 +64,18 @@ Beispielkonfiguration:
         <add key="iCsvPosTel2" value="29" />
         <add key="iCsvPosTel3" value="30" />
         <add key="iCsvPosTel4" value="31" />
+        <add key="iHotKey" value="183" />
+        <add key="iHotKeyModifier" value="0" />
         <add key="sSIPAddr" value="SIPTAPI 001: sip:TAPIuser@192.168.178.1" />
     </appSettings>
 </configuration>
 ```
+
+## Funktionalität ##
+In der aktualisierten Version v1.0d ist zusätzlich zur Bedienung über das TrayIcon eine *HotKey-Funktion* ergänzt.
+Durch drücken der sog. VK_LAUNCH_APP2-Taste (Sondertaste zum Starten des Calculators) wird der aktuell eingehende Anruf, bzw. der zuletzt eingegangene Anruf an das Praxisverwaltungssystem übergeben und die Patientenkartei aufgerufen.
+Die Hotkey-Taste kann angepasst werden (siehe Konfigurationsdatei). Für die Konfigurationswerte ist [MS Documentation](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes), [KeyboardStateView](https://www.nirsoft.net/utils/keyboard_state_view.html) oder Google behilflich...
+
 ## Debuginformationen
 Die TrayApp erstellt aktuell kein Logfile - jedoch können interne Debuginformationen (z.B. Fehlermeldungen, Debugausgaben, usw.) zur Laufzeit mittels [Sysinternals DebugView](https://learn.microsoft.com/de-de/sysinternals/downloads/debugview) angezeigt werden.
 
