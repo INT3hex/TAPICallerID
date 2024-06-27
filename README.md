@@ -78,6 +78,8 @@ Beispielkonfiguration:
         <add key="iHotKey" value="183" />
         <add key="iHotKeyModifier" value="0" />
         <add key="sSIPAddr" value="SIPTAPI 001: sip:TAPIuser@192.168.178.1" />
+        <add key="wndT2Class" value="GlassWndClass-GlassWindowClass-" />
+        <add key="wndT2Caption" value="t2med" />
     </appSettings>
 </configuration>
 ```
