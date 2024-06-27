@@ -27,17 +27,26 @@ Für die Anbindung an eine Fritzbox nutzen wir SIPTAPI in der *Release SingleLin
 **Hinweis**: 
 SIPTAPI speichert die Konfigurationsinformationen im Registry-Key [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Telephony\SIPTAPI]. 
 
-Das Passwort des SIP-Accounts wird dabei im Klartext gespeichert.
+Das Passwort des SIP-Accounts wird dabei im Klartext gespeichert!
 
 
 ## Installation TAPICallerID
 Die TrayApp (TrayApp.Exe) ist grundsätzlich eine 'portable App' und muss nicht installiert werden.
 Ein Start der Anwendung bei Anmeldung (Stichwort *Autostart*) ist sinnvoll und wäre manuell zu konfigurieren.
 
-Beim ersten Start der Applikation wird eine Fehlermeldung erscheinen, dass keine TAPI-ID (= konfigurierter TAPI-Provider) gefunden wurde:
-![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/TrayApp_NoTAPI.PNG)
+Beim ersten Start der Applikation wird eine Fehlermeldung erscheinen, dass keine TAPI-ID (= konfigurierte TAPI-Line/Provider) gefunden wurde:
+ ![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/TrayApp_NoTAPI.PNG)
+ 
+Die verfügbaren TAPI-Line/Provider werden in der Meldung angezeigt (s. highlighted Zeile). Wenn kein TAPI-Provider angezeigt wird --> siehe [Voraussetzungen](https://github.com/INT3hex/TAPICallerID/new/master?filename=README.md#voraussetzung-tapi-device) .
+Verfügbare TAPI-Line/Provider können alternativ auch mittels Powershell im System abgefragt werden:
+```powershell
+# Create and Initialize TAPI Object
+$tapi = New-Object -ComObject TAPI.TAPI.1
+$tapi.initialize()
+# Enumerate TAPI-Lines/Providers
+foreach ($item in $tapi.Addresses) { Write-Host $item.AddressName }
+```
 
-Die verfügbaren TAPI-Provider werden angezeigt (s. highlighted Zeile). Wenn kein TAPI-Provider angezeigt wird --> siehe [Voraussetzungen](https://github.com/INT3hex/TAPICallerID/new/master?filename=README.md#voraussetzung-tapi-device) . 
 
 Beim Beenden der TrayApp wird im Verzeichnis der Applikation eine Konfigurationsdatei (TrayApp.exe.config) mit der Defaultkonfiguration erzeugt.
 Die Konfigurationsdatei kann nun mit einem beliebigen Texteditor (Notepad) editiert werden.
