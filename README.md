@@ -1,6 +1,6 @@
 # TAPICallerID (für T2med)
 TAPICallerID ist eine kleine TrayApp, die über ein TAPI-Device ([s. Microsoft TAPI Übersicht](https://learn.microsoft.com/de-de/windows/win32/tapi/telephony-application-programming-interfaces)) eine CTI-Integration in die Praxissoftware T2med ermöglicht. (Eine Nutzung ist nur in Verbindung mit T2med sinnvoll - getestet bis Version 24.6.4)
-Dabei werden eingehende Anrufe (z.B. von einer Fritzbox oder sonstigen Telefonanlage) in der TrayIcon-Leiste signalisiert und der zur Rufnummer passende Patienteneintrag kann mit einem Doppelklick und *neu* mittels HotKey direkt im Praxisverwaltungssystem aufgerufen werden.
+Dabei werden eingehende Anrufe (z.B. von einer Fritzbox oder sonstigen Telefonanlage) in der TrayIcon-Leiste signalisiert und der zur Rufnummer passende Patienteneintrag kann mit einem Doppelklick und **neu** mittels HotKey direkt im Praxisverwaltungssystem aufgerufen werden.
 
 ![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/TrayIcon.png)
 - Die Suche des Patienteneintrags in der T2med-Anwendung erfolgt dabei über die interne T2med Patientennummer.
@@ -32,6 +32,8 @@ Das Passwort des SIP-Accounts wird dabei im Klartext gespeichert.
 
 ## Installation TAPICallerID
 Die TrayApp (TrayApp.Exe) ist grundsätzlich eine 'portable App' und muss nicht installiert werden.
+Ein Start der Anwendung bei Anmeldung (Stichwort *Autostart*) ist sinnvoll und wäre manuell zu konfigurieren.
+
 Beim ersten Start der Applikation wird eine Fehlermeldung erscheinen, dass keine TAPI-ID (= konfigurierter TAPI-Provider) gefunden wurde:
 ![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/TrayApp_NoTAPI.PNG)
 
@@ -72,9 +74,13 @@ Beispielkonfiguration:
 ```
 
 ## Funktionalität ##
-In der aktualisierten Version v1.0d ist zusätzlich zur Bedienung über das TrayIcon eine *HotKey-Funktion* ergänzt.
-Durch drücken der sog. VK_LAUNCH_APP2-Taste (Sondertaste zum Starten des Calculators) wird der aktuell eingehende Anruf, bzw. der zuletzt eingegangene Anruf an das Praxisverwaltungssystem übergeben und die Patientenkartei aufgerufen.
-Die Hotkey-Taste kann angepasst werden (siehe Konfigurationsdatei). Für die Konfigurationswerte ist [MS Documentation](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes), [KeyboardStateView](https://www.nirsoft.net/utils/keyboard_state_view.html) oder Google behilflich...
+* Die TrayApp verbindet sich beim Start mit einem (beliebigen) konfigurierten TAPI-Provider als Audio-Gerät ("VoIP-Telefon") und hört auf Anrufsignalisierung (TE_CALLNOTIFICATION). Dabei muss der TAPI-Provider die Anrufsignalisierung (mindestens CallerIDNumber) unterstützen. 
+* Sofern in der Konfigurationsdatei eine konforme CSV mit Rufnummern-Patientennummern-Zuordnung angegeben ist, wird diese zum Programmstart einmalig eingelesen.
+* Das Programm legt sich in die TrayIcon-Leiste und ist bewusst minimalinvasiv ausgestattet, d.h. es sollten keine Meldungen & PopUps erscheinen, um den Praxisbetrieb so wenig wie möglich zu stören. (Lediglich beim Start des Programms erfolgt einmalig eine Meldung, sofern kein konfigurierter TAPI-Provider gefunden wird.)
+
+* In der aktualisierten Version v1.0d ist zusätzlich zur Bedienung über das TrayIcon eine *HotKey-Funktion* ergänzt.
+Durch Drücken einer Funktionstaste (initial der sog. VK_LAUNCH_APP2-Taste = Sondertaste zum Starten des Calculators) wird der aktuell eingehende Anruf, bzw. der zuletzt eingegangene Anruf an das Praxisverwaltungssystem übergeben und die Patientenkartei aufgerufen. 
+Die Hotkey-Taste kann angepasst werden (siehe Konfigurationsdatei). Für die Konfigurationswerte ist [Microsoft Dokumentation](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes), [NirSoft KeyboardStateView](https://www.nirsoft.net/utils/keyboard_state_view.html) oder Google behilflich...
 
 ## Debuginformationen
 Die TrayApp erstellt aktuell kein Logfile - jedoch können interne Debuginformationen (z.B. Fehlermeldungen, Debugausgaben, usw.) zur Laufzeit mittels [Sysinternals DebugView](https://learn.microsoft.com/de-de/sysinternals/downloads/debugview) angezeigt werden.
