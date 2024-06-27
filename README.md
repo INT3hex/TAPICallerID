@@ -91,6 +91,8 @@ Beispielkonfiguration:
 Durch Drücken einer Funktionstaste (initial der sog. VK_LAUNCH_APP2-Taste = Sondertaste zum Starten des Calculators) wird der aktuell eingehende Anruf, bzw. der zuletzt eingegangene Anruf an das Praxisverwaltungssystem übergeben und die Patientenkartei aufgerufen. 
 Die Hotkey-Taste kann angepasst werden (siehe Konfigurationsdatei). Für die Konfigurationswerte ist [Microsoft Dokumentation](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes), [NirSoft KeyboardStateView](https://www.nirsoft.net/utils/keyboard_state_view.html) oder Google behilflich...
 
+![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/TrayApp_HotKey.png)
+
 ## Debuginformationen
 Die TrayApp erstellt aktuell kein Logfile - jedoch können interne Debuginformationen (z.B. Fehlermeldungen, Debugausgaben, usw.) zur Laufzeit mittels [Sysinternals DebugView](https://learn.microsoft.com/de-de/sysinternals/downloads/debugview) angezeigt werden.
 
