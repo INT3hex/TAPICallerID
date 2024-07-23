@@ -111,6 +111,9 @@ Module WindowHandling
                             (prevElement Is Nothing) And
                             (nextElement.Current.ControlType.ProgrammaticName = "ControlType.Button" Or nextElement.Current.ControlType.ProgrammaticName = "ControlType.Image") Then
                             DebugPrint("T2MedSearch: Suchfeld gefunden - Suchtext wird in das Suchfeld eingefügt!")
+                            ' HotKey 2 (aka F9) pressed
+                            If sPatient = "HOTKEY" Then element.SetFocus() : Return 0
+
                             valPattern.SetValue(sPatient)
                             Thread.Sleep(1000)
                             nextElement.SetFocus()

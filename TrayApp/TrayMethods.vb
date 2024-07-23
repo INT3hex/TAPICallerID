@@ -6,7 +6,9 @@
         'Perform any clean-up here
         'Then exit the application
         DebugPrint("TrayMethods: Exiting... Unregister Hotkey and end application.")
-        HotKeyClass.unregisterHotkeys(MainForm)
+        HotKeyClass.unregisterHotkeys(MainForm, 1)
+        If App.iHotKey2 > 0 Then HotKeyClass.unregisterHotkeys(MainForm, 2)
+
         Application.Exit()
     End Sub
 

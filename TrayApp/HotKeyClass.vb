@@ -22,15 +22,15 @@
 
 
 #Region "Hotkey registration, unregistration and handling"
-    Public Shared Sub registerHotkey(ByRef sourceForm As Form, ByVal triggerKey As Integer, ByVal modifier As KeyModifier)
-        RegisterHotKey(sourceForm.Handle, 1, modifier, triggerKey)
+    Public Shared Sub registerHotkey(ByRef sourceForm As Form, hknumber As Integer, ByVal triggerKey As Integer, ByVal modifier As KeyModifier)
+        RegisterHotKey(sourceForm.Handle, hknumber, modifier, triggerKey)
     End Sub
-    Public Shared Sub unregisterHotkeys(ByRef sourceForm As Form)
-        UnregisterHotKey(sourceForm.Handle, 1)  'Remember to call unregisterHotkeys() when closing your application.
+    Public Shared Sub unregisterHotkeys(ByRef sourceForm As Form, hknumber As Integer)
+        UnregisterHotKey(sourceForm.Handle, hknumber)  'Remember to call unregisterHotkeys() when closing your application.
     End Sub
     Public Shared Sub handleHotKeyEvent(ByVal hotkeyID As IntPtr)
-        DebugPrint("HotKeyClass: Hotkey was pressed.... passing LastCallerID to T2med...")
-        T2medSearchID(App.sLastCaller)
+        DebugPrint("HotKeyClass: Hotkey " & hotkeyID.ToString & " was pressed.... passing LastCallerID to T2med...")
+        If hotkeyID = 1 Then T2medSearchID(App.sLastCaller) Else T2medSearch("HOTKEY")
     End Sub
 #End Region
 End Class

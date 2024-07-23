@@ -39,6 +39,8 @@ Public Module App
     Dim iCsvPosTel4 As Integer = App._appConfig.GetProperty("iCsvPosTel4", 31)
     Dim iHotKey As Integer = App._appConfig.GetProperty("iHotKey", 183)
     Dim iHotKeyModifier As Integer = App._appConfig.GetProperty("iHotKeyModifier", 0)
+    Public iHotKey2 As Integer = App._appConfig.GetProperty("iHotKey2", 120)
+    Dim iHotKeyModifier2 As Integer = App._appConfig.GetProperty("iHotKeyModifier2", 0)
 
     Public Sub Main()
         ' Init TAPI
@@ -90,7 +92,9 @@ Public Module App
         ' z.B. asc("W"), HotKeyClass.KeyModifier.Alt = Alt+W
         '      183, 0 = VK_LAUNCH_APP2 (Calculator Key)
         ' see http://www.kbdedit.com/manual/low_level_vk_list.html or Google for virtual keys & modifier
-        HotKeyClass.registerHotkey(MainForm, iHotKey, iHotKeyModifier)
+        HotKeyClass.registerHotkey(MainForm, 1, iHotKey, iHotKeyModifier)
+        If iHotKey2 > 0 Then HotKeyClass.registerHotkey(MainForm, 2, iHotKey2, iHotKeyModifier2)
+
 
         'Run the application using AppContext
         Application.Run(cTray)

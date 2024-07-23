@@ -8,7 +8,9 @@ Dabei werden eingehende Anrufe (z.B. von einer Fritzbox oder sonstigen Telefonan
   
   a) entweder direkt über den via TAPI übergebenen Anrufernamen (CallerID), sofern er in der Telefonanlage (z.B. Fritzbox) gepflegt ist. Hierfür muss im Feld Anrufername am Ende das Hash-Zeichen (#) gefolgt von der Patientennummer übergeben werden. (dieser Weg ist aus Datenschutzkonformitätsgründen empfehlenswert)
 
-  b) oder separat über eine CSV-Export-Datei (erstellt via 'kombinierte Suche' in T2med) 
+  b) oder separat über eine CSV-Export-Datei (erstellt via 'kombinierte Suche' in T2med). Option *sCsvFile* mit fullqualified Pfad. 
+
+  c) ab T2med Version 24.9.0 ist der Aufruf der Patientenkartei über eine Telefonnummer-Rückwärtssuche möglich. Die Nutzung wird ab TAPICallerID v1.1 unterstützt. In der Konfigurationsdatei wird dies über die Option *bFeatureSearchPhonenumber* gesteuert. Wenn weder die Patientennummer aus der Telefonanlage noch durch die CSV-Datei zugesteuert wird, erfolgt die Suche über die per TAPI übergebene Telefonnummer. Diese muss dann entsprechend in T2med gepflegt sein. (Da die Version 24.9.0 derzeit noch nicht produktiv ist, ist diese Funktion bislang ohne realen Funktionstest implementiert.) 
 
 ## Voraussetzung (TAPI-Device)
 Als Schnittstelle zur Telefonanlage ist ein systemseitig installiertes TAPI-Device notwendig.
@@ -66,6 +68,7 @@ Beispielkonfiguration:
 <configuration>
     <appSettings>
         <add key="bDirectSearchOnDblClick" value="True" />
+        <add key="bFeatureSearchPhonenumber" value="True" />
         <add key="sCsvFile" value="C:\Daten\t2med_PatientenlisteExport.csv" />
         <add key="sCsvVorwahl" value="" />
         <add key="iCsvPosPatientennummer" value="0" />
@@ -77,9 +80,12 @@ Beispielkonfiguration:
         <add key="iCsvPosTel4" value="31" />
         <add key="iHotKey" value="183" />
         <add key="iHotKeyModifier" value="0" />
+    	<add key="iHotKey2" value="120" />
+    	<add key="iHotKeyModifier2" value="0" />
         <add key="sSIPAddr" value="SIPTAPI 001: sip:TAPIuser@192.168.178.1" />
         <add key="wndT2Class" value="GlassWndClass-GlassWindowClass-" />
         <add key="wndT2Caption" value="t2med" />
+	<add key="wndT2SearchControlHeight" value="53" />
     </appSettings>
 </configuration>
 ```
@@ -89,11 +95,13 @@ Beispielkonfiguration:
 * Sofern in der Konfigurationsdatei eine konforme CSV mit Rufnummern-Patientennummern-Zuordnung angegeben ist, wird diese zum Programmstart einmalig eingelesen.
 * Das Programm legt sich in die TrayIcon-Leiste und ist bewusst minimalinvasiv ausgestattet, d.h. es sollten keine Meldungen & PopUps erscheinen, um den Praxisbetrieb so wenig wie möglich zu stören. (Lediglich beim Start des Programms erfolgt einmalig eine Meldung, sofern kein konfigurierter TAPI-Provider gefunden wird.)
 
-* In der aktualisierten Version v1.0d ist zusätzlich zur Bedienung über das TrayIcon eine *HotKey-Funktion* ergänzt.
+* Ab der aktualisierten Version v1.1 sind zusätzlich zur Bedienung über das TrayIcon zwei *HotKey-Funktionen* ergänzt.
 Durch Drücken einer Funktionstaste (initial der sog. VK_LAUNCH_APP2-Taste = Sondertaste zum Starten des Calculators) wird der aktuell eingehende Anruf, bzw. der zuletzt eingegangene Anruf an das Praxisverwaltungssystem übergeben und die Patientenkartei aufgerufen. 
 Die Hotkey-Taste kann angepasst werden (siehe Konfigurationsdatei). Für die Konfigurationswerte ist [Microsoft Dokumentation](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes), [NirSoft KeyboardStateView](https://www.nirsoft.net/utils/keyboard_state_view.html) oder Google behilflich...
 
 ![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/TrayApp_HotKey.png)
+
+Die zweite Hotkey-Taste (aktuell *F9*) springt lediglich in das Suchfeld von T2med.
 
 ## Debuginformationen
 Die TrayApp erstellt aktuell kein Logfile - jedoch können interne Debuginformationen (z.B. Fehlermeldungen, Debugausgaben, usw.) zur Laufzeit mittels [Sysinternals DebugView](https://learn.microsoft.com/de-de/sysinternals/downloads/debugview) angezeigt werden.
@@ -101,5 +109,5 @@ Die TrayApp erstellt aktuell kein Logfile - jedoch können interne Debuginformat
 Zur Diagnose der TAPI-Kommunikation ist [TapiCaps der Fa. ESTOS](https://support.estos.de/de/procall-enterprise/analyse-fuer-tapi-leitungen-trace-erzeugen-mit-tapicaps-exe) ein wertvolles Werkzeug.
 
 ## Disclaimer
-Für die Nutzung, Eignung, Fehlerfreiheit, Nützlichkeit etc. der Software wird keine Haftung übernommen. Die Anwendung und Anleitung wurde nach bestem Wissen erstellt. Der Quellcode kann eingesehen (und beliebig kopiert und verändert) werden. Das bereitgestellte Binärfile TrayApp.exe in v1.0d wurde bei Virustotal validiert. 
-[Virustotal Analyse](https://www.virustotal.com/gui/file/b4296715c5eb97f72044351042bcb0f67e3efcc1f27b17ebb952991e3f7f40e9)
+Für die Nutzung, Eignung, Fehlerfreiheit, Nützlichkeit etc. der Software wird keine Haftung übernommen. Die Anwendung und Anleitung wurde nach bestem Wissen erstellt. Der Quellcode kann eingesehen (und beliebig kopiert und verändert) werden. Das bereitgestellte Binärfile TrayApp.exe in v1.1 wurde bei Virustotal validiert. 
+[Virustotal Analyse](https://www.virustotal.com/gui/file/257b04d4eb2c23d18cd599f2153b63881d8b6937dc3dbee7384cd840d83e3659)
