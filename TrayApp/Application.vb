@@ -62,7 +62,7 @@ Public Module App
 
 
         If sCsvFile <> "" Then
-            DebugPrint("MAIN: CSV-Konfiguration gesetzt, lese: " & sCsvFile)
+            DebugPrint("MAIN: CSV-Konfiguration gesetzt, lese Datei: " & sCsvFile)
             Using tfp = New Microsoft.VisualBasic.FileIO.TextFieldParser(sCsvFile, Encoding.Default)
                 tfp.SetDelimiters(";")
                 Dim fields = tfp.ReadFields
@@ -72,8 +72,8 @@ Public Module App
                     oPBEntry.Name = fields(iCsvPosName) & ", " & fields(iCsvPosVorname)
 
                     'NormalizePhoneNumbers
-                    'DebugPrint("Norm_0:" & fields(iCsvPosTel1) & " " & fields(iCsvPosTel2) & " " & fields(iCsvPosTel3) & " " & fields(iCsvPosTel4))
-                    DebugPrint("Norm_1:" & NormalizePhoneNumber(fields(iCsvPosTel1)) & " " & NormalizePhoneNumber(fields(iCsvPosTel2)) & " " & NormalizePhoneNumber(fields(iCsvPosTel3)) & " " & NormalizePhoneNumber(fields(iCsvPosTel4)))
+                    'DebugPrint("Native    :" & fields(iCsvPosTel1) & " " & fields(iCsvPosTel2) & " " & fields(iCsvPosTel3) & " " & fields(iCsvPosTel4))
+                    'DebugPrint("Normalized:" & NormalizePhoneNumber(fields(iCsvPosTel1)) & " " & NormalizePhoneNumber(fields(iCsvPosTel2)) & " " & NormalizePhoneNumber(fields(iCsvPosTel3)) & " " & NormalizePhoneNumber(fields(iCsvPosTel4)))
                     oPBEntry.Numbers = NormalizePhoneNumber(fields(iCsvPosTel1)) & " " & NormalizePhoneNumber(fields(iCsvPosTel2)) & " " & NormalizePhoneNumber(fields(iCsvPosTel3)) & " " & NormalizePhoneNumber(fields(iCsvPosTel4))
 
                     aPhoneBook.Add(oPBEntry)
@@ -126,11 +126,14 @@ Public Module App
 
         If Len(strCallerID) > 1 Then ' if CallerID is somehow available
 
+
             If TrayApp.App.globalListbox.Items.Count > 2 Then TrayApp.App.globalListbox.Items.RemoveAt(0)
 
-            If strCallerIDName = "" Then strCallerIDName = strCallerID
+            'following is just for debugging reasons
+            If strCallerID = "**626" Then strCallerID = "0711620" : strCallerIDName = "~0711620"
+            If strCallerIDName = "" Then strCallerIDName = strCallerID ' !!! SHOULD NEVER MATCH, strCallerIDName is always set
 
-            ' check if CallerIDName has # pattern as PatientenID
+            ' check if CallerIDName has # pattern as PatientenID set by PBX, otherwise search in Phonebook
             If InStr(strCallerIDName, "#") = 0 Then
                 DebugPrint("TAPI: CallerIDName enthält kein Kennzeichen für PatientenID")
                 ' add info from CSV

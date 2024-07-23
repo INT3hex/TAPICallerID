@@ -123,7 +123,7 @@ Public Class TrayClass
 
     Private Function GenMnuItem(ByRef sCall As String) As ToolStripMenuItem
         'DebugPrint("GenMenuItem:" & sCall)
-        If InStr(sCall, "#") Then
+        If InStr(sCall, "#") Or (InStr(sCall, "~") And WindowHandling.bFeatureSearchPhonenumber) Then
             img = TrayApp.My.Resources.PhoneCall.ToBitmap
         Else
             img = TrayApp.My.Resources.PhoneGrey.ToBitmap

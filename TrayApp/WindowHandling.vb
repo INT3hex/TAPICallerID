@@ -1,7 +1,10 @@
 ﻿Imports System.Threading
+Imports System.Windows
 Imports System.Windows.Automation
 
+
 Module WindowHandling
+
     Public Declare Function SetForegroundWindow Lib "user32.dll" (ByVal hwnd As Integer) As Integer
     Public Declare Auto Function FindWindow Lib "user32.dll" (ByVal lpClassName As String, ByVal lpWindowName As String) As Integer
     Public Declare Function IsIconic Lib "user32.dll" (ByVal hwnd As Integer) As Boolean
@@ -12,8 +15,10 @@ Module WindowHandling
     Public Const SW_SHOW As Integer = 5
 
     ' Read definitions from configuration
+    Public bFeatureSearchPhonenumber As Boolean = App._appConfig.GetProperty("bFeatureSearchPhonenumber", True)
     Public wndT2Class As String = App._appConfig.GetProperty("wndT2Class", "GlassWndClass-GlassWindowClass-")
     Public wndT2Caption As String = App._appConfig.GetProperty("wndT2Caption", "t2med")
+    Public wndT2SearchControlHeight As Integer = App._appConfig.GetProperty("wndT2SearchControlHeight", 53)
     'Public wndT2SearchControl As String = App._appConfig.GetProperty("wndT2SearchControl", "ControlType.Image")
 
     Function FocusWindow(ByVal strWindowCaption As String, ByVal strClassName As String) As Long
@@ -50,13 +55,25 @@ Module WindowHandling
     End Function
 
     Public Function T2medSearchID(ByVal sSearch As String) As Integer
+        'sSearch = " #123457846" 'just for debugging
         Dim iHash As Integer = InStr(sSearch, "#")
+        Dim sPatientSearch As String
+
         If iHash > 0 Then
-            Dim sPatientID As String = sSearch.Substring(iHash)
-            DebugPrint("WindowHandling: Aufruf von T2MedSearch mit PatientID: " & sPatientID)
-            Return T2medSearch(sPatientID)
+            sPatientSearch = sSearch.Substring(iHash)
+            DebugPrint("WindowHandling: Aufruf von T2MedSearch mit PatientID: " & sPatientSearch)
+            Return T2medSearch(sPatientSearch)
         End If
         DebugPrint("T2medSearchID: Patientennummer (#) nicht angegeben:" & sSearch)
+
+        If bFeatureSearchPhonenumber Then
+            iHash = InStr(sSearch, "~")
+            If iHash > 0 Then
+                sPatientSearch = sSearch.Substring(iHash)
+                DebugPrint("WindowHandling: NewFeatureEnabled - Aufruf von T2MedSearch mit Telefonnummer: " & sPatientSearch)
+                Return T2medSearch(sPatientSearch)
+            End If
+        End If
         Return 3 'no ID in searchstring
     End Function
 
@@ -70,56 +87,44 @@ Module WindowHandling
             Dim wndElement As AutomationElement = AutomationElement.FromHandle(hT2med)
             If wndElement IsNot Nothing Then
 
-                ' Such-Control condition (fix: Edit & "Suche")
-                Dim controlCondition As New AndCondition(
-                    New PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit),
-                    New PropertyCondition(ValuePattern.ValueProperty, "Suche"))
-
-                ' Treffer-Control condition (fix: Image)
-                Dim imageCondition As New PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Image)
+                Dim controlCondition As New PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit)
 
                 ' Finde Such-Control
-                Dim controlElement As AutomationElement = wndElement.FindFirst(TreeScope.Descendants, controlCondition)
+                Dim elementCollection As AutomationElementCollection = wndElement.FindAll(TreeScope.Descendants, controlCondition)
 
-                If controlElement IsNot Nothing Then
-                    DebugPrint("T2MedSearch: Control 'Suche' gefunden. Typ:" & controlElement.Current.ControlType.ProgrammaticName & " " & controlElement.Current.AutomationId)
-                    Dim nextElement As AutomationElement = TreeWalker.RawViewWalker.GetNextSibling(controlElement)
-                    'DebugPrint("T2MedSearch:  Next ist:" & parentElement.Current.Name)
-                    DebugPrint("T2MedSearch:  NextControl (sollte Image sein) ist:" & nextElement.Current.ControlType.ProgrammaticName & " " & nextElement.Current.AutomationId)
+                ' Iteriere durch alle gefundenen Elemente
+                For Each element As AutomationElement In elementCollection
+                    ' Hole das aktuelle BoundingRectangle des Elements
+                    Dim boundingRect As Rect = element.Current.BoundingRectangle
+                    ' Vergleiche die Höhe des BoundingRectangles mit dem Zielwert (Configfile)
+                    'DebugPrint("T2MedSearch: Height " & element.Current.AutomationId & ":" & element.Current.BoundingRectangle.Height.ToString())
+                    If boundingRect.Height = wndT2SearchControlHeight Then
+                        ' Wenn die Höhe übereinstimmt, noch das Vorgängerelement auslesen
 
-                    If nextElement.Current.ControlType.ProgrammaticName = "ControlType.Image" Then
-                        ' Send Search
-                        DebugPrint("T2MedSearch: NextControl gefunden. Suche Patient.")
-                        Dim valuePattern As ValuePattern = TryCast(controlElement.GetCurrentPattern(ValuePattern.Pattern), ValuePattern)
-                        If valuePattern IsNot Nothing Then
-                            ' Suchtext in das Textfeld einfügen
-                            valuePattern.SetValue(sPatient)
+                        DebugPrint("T2MedSearch: passendes Control gefunden:" & element.Current.ControlType.ProgrammaticName & " " & element.Current.AutomationId & ":" & element.Current.BoundingRectangle.Height.ToString)
+                        Dim prevElement As AutomationElement = TreeWalker.RawViewWalker.GetPreviousSibling(element)
+                        Dim nextElement As AutomationElement = TreeWalker.RawViewWalker.GetNextSibling(element)
+                        Dim valPattern As ValuePattern = DirectCast(element.GetCurrentPattern(ValuePattern.Pattern), ValuePattern)
+                        DebugPrint("T2MedSearch: FolgeControl prüfen (Image/Button):" & nextElement.Current.ControlType.ProgrammaticName)
+
+                        If (valPattern IsNot Nothing) And
+                            (prevElement Is Nothing) And
+                            (nextElement.Current.ControlType.ProgrammaticName = "ControlType.Button" Or nextElement.Current.ControlType.ProgrammaticName = "ControlType.Image") Then
+                            DebugPrint("T2MedSearch: Suchfeld gefunden - Suchtext wird in das Suchfeld eingefügt!")
+                            valPattern.SetValue(sPatient)
                             Thread.Sleep(1000)
-                            DebugPrint("T2MedSearch: Suchtext wurde erfolgreich in das Textfeld eingefügt.")
-                            wndElement = AutomationElement.FromHandle(hT2med)
-                            DebugPrint("T2MedSearch: Enumeriere erneut die Controls.")
-                            Dim controlCollection As AutomationElementCollection = wndElement.FindAll(TreeScope.Children, imageCondition)
-                            DebugPrint("T2MedSearch: Debug: Anzahl ImageControls:" & controlCollection.Count)
-                            Dim next2Element As AutomationElement = controlCollection(1)
-                            DebugPrint("T2MedSearch: Debug: next2Element:" & controlCollection(1).Current.AutomationId)
-                            If next2Element.Current.ControlType.ProgrammaticName = "ControlType.Image" Then
-                                DebugPrint("T2MedSearch: Element vermutlich korrekt gefunden. Send Enter|GO!")
-                                next2Element.SetFocus()
-                                SendKeys.Send("~")
-                            End If
-                        Else
-                            DebugPrint("T2MedSearch: Oha! Das Steuerelement unterstützt kein ValuePattern.")
-                            Return 2 ' Control not found
+                            nextElement.SetFocus()
+                            SendKeys.Send("~")
+                            Return 0 ' OK
                         End If
-                    Else
-                        DebugPrint("T2MedSearch: Oha! Leider nicht das richtige Steuerelement gefunden.")
-                        Return 2 ' Control not found
                     End If
-                    Return 0 ' OK
-                End If
+                Next
+                DebugPrint("T2MedSearch: Oha! Leider nicht das richtige Steuerelement gefunden.")
+                Return 2 ' Control not found
+            Else
+                DebugPrint("T2MedSearch: Oha! T2Med Applikation nicht gefunden.")
+                Return 1 ' T2Med not found
             End If
-            Return 2 ' Control not found
-        Else
             DebugPrint("T2MedSearch: Oha! T2Med Applikation nicht gefunden.")
             Return 1 ' T2Med not found
         End If

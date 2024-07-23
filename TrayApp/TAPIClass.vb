@@ -57,7 +57,7 @@ Namespace namespace_tapi
                         sEventCallerIDName = CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME)
                     Catch ex As Exception
                         DebugPrint("TAPI: got Execption - CallerID is NULL:" & ex.Message)
-                        sEventCallerIDName = CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER)
+                        sEventCallerIDName = "~" & CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER)
                     End Try
 
                     DebugPrint("TAPI: Notification CallerIDName & CallerIDNumber: " & CallNotificationEvent.Call.CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER) & " " & sEventCallerIDName)
