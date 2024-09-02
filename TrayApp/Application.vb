@@ -41,6 +41,8 @@ Public Module App
     Dim iHotKeyModifier As Integer = App._appConfig.GetProperty("iHotKeyModifier", 0)
     Public iHotKey2 As Integer = App._appConfig.GetProperty("iHotKey2", 120)
     Dim iHotKeyModifier2 As Integer = App._appConfig.GetProperty("iHotKeyModifier2", 0)
+    Dim bWriteLogfile As Boolean = App._appConfig.GetProperty("bWriteLogfile", False)
+
 
     Public Sub Main()
         ' Init TAPI
@@ -103,6 +105,7 @@ Public Module App
 
     Public Sub DebugPrint(ByRef sDebugOutput As String)
         Debug.WriteLine(sDebugOutput)
+        'If bWriteLogfile Then
     End Sub
 
     Public Function NormalizePhoneNumber(ByRef sNumber As String) As String

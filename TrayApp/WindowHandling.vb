@@ -55,7 +55,7 @@ Module WindowHandling
     End Function
 
     Public Function T2medSearchID(ByVal sSearch As String) As Integer
-        'sSearch = " #123457846" 'just for debugging
+        sSearch = " #123457846" 'just for debugging
         Dim iHash As Integer = InStr(sSearch, "#")
         Dim sPatientSearch As String
 
@@ -91,26 +91,24 @@ Module WindowHandling
 
                 ' Finde Such-Control
                 Dim elementCollection As AutomationElementCollection = wndElement.FindAll(TreeScope.Descendants, controlCondition)
+                Dim prevElement As AutomationElement
+                Dim nextElement As AutomationElement
+                Dim valPattern As ValuePattern
 
                 ' Iteriere durch alle gefundenen Elemente
                 For Each element As AutomationElement In elementCollection
-                    ' Hole das aktuelle BoundingRectangle des Elements
-                    Dim boundingRect As Rect = element.Current.BoundingRectangle
-                    ' Vergleiche die Höhe des BoundingRectangles mit dem Zielwert (Configfile)
-                    'DebugPrint("T2MedSearch: Height " & element.Current.AutomationId & ":" & element.Current.BoundingRectangle.Height.ToString())
-                    If boundingRect.Height = wndT2SearchControlHeight Then
-                        ' Wenn die Höhe übereinstimmt, noch das Vorgängerelement auslesen
 
-                        DebugPrint("T2MedSearch: passendes Control gefunden:" & element.Current.ControlType.ProgrammaticName & " " & element.Current.AutomationId & ":" & element.Current.BoundingRectangle.Height.ToString)
-                        Dim prevElement As AutomationElement = TreeWalker.RawViewWalker.GetPreviousSibling(element)
-                        Dim nextElement As AutomationElement = TreeWalker.RawViewWalker.GetNextSibling(element)
-                        Dim valPattern As ValuePattern = DirectCast(element.GetCurrentPattern(ValuePattern.Pattern), ValuePattern)
-                        DebugPrint("T2MedSearch: FolgeControl prüfen (Image/Button):" & nextElement.Current.ControlType.ProgrammaticName)
+                    prevElement = TreeWalker.RawViewWalker.GetPreviousSibling(element)
+                    nextElement = TreeWalker.RawViewWalker.GetNextSibling(element)
+                    valPattern = DirectCast(element.GetCurrentPattern(ValuePattern.Pattern), ValuePattern)
+                    DebugPrint("T2MedSearch: Umgebene Controls zu " & element.Current.AutomationId & " prüfen!")
 
+                    ' Logik ist: das vorausgehende Element ist 'nothing' und das nachfolgende Element ist 'Button' oder 'Image'
+                    If nextElement IsNot Nothing Then
                         If (valPattern IsNot Nothing) And
                             (prevElement Is Nothing) And
                             (nextElement.Current.ControlType.ProgrammaticName = "ControlType.Button" Or nextElement.Current.ControlType.ProgrammaticName = "ControlType.Image") Then
-                            DebugPrint("T2MedSearch: Suchfeld gefunden - Suchtext wird in das Suchfeld eingefügt!")
+                            DebugPrint("T2MedSearch: Suchfeld höchstwahrscheinlich gefunden: " & element.Current.AutomationId & " - Suchtext wird in das Suchfeld eingefügt!")
                             ' HotKey 2 (aka F9) pressed
                             If sPatient = "HOTKEY" Then element.SetFocus() : Return 0
 
@@ -121,6 +119,7 @@ Module WindowHandling
                             Return 0 ' OK
                         End If
                     End If
+
                 Next
                 DebugPrint("T2MedSearch: Oha! Leider nicht das richtige Steuerelement gefunden.")
                 Return 2 ' Control not found
