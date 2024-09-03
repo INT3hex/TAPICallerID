@@ -1,6 +1,7 @@
 ﻿
 Imports System.Globalization
 Imports System.IO
+Imports System.Linq
 Imports System.Reflection.Emit
 Imports System.Text
 Imports System.Text.RegularExpressions
@@ -47,6 +48,22 @@ Public Module App
     Public Sub Main()
         ' Init TAPI
         DebugPrint("MAIN: TAPICallerID für T2med gestartet.")
+
+        Dim args As String() = Environment.GetCommandLineArgs()
+        DebugPrint("MAIN: Commandline:" & String.Join(" ", args))
+
+        For i As Integer = 0 To args.Count - 1
+            Console.WriteLine(i & args(i))
+            Select Case args(i).ToLower
+                Case "-id"
+                    DebugPrint("MAIN: Direktsuche über Commandline:" & args(i + 1))
+                    T2medSearchID(args(i + 1))
+                    ' disable TrayIcon and End
+                    cTray.Tray.Visible = False
+                    End
+            End Select
+        Next i
+
         DebugPrint("MAIN: Initialisiere TAPI.")
         Dim localTAPI As New namespace_tapi.TAPIClass
         Dim sTapiID As String = localTAPI.Initialize()
@@ -105,7 +122,8 @@ Public Module App
 
     Public Sub DebugPrint(ByRef sDebugOutput As String)
         Debug.WriteLine(sDebugOutput)
-        'If bWriteLogfile Then
+        If bWriteLogfile Then File.AppendAllText(Application.ExecutablePath & ".log", DateTime.Now + " " + sDebugOutput + Environment.NewLine)
+
     End Sub
 
     Public Function NormalizePhoneNumber(ByRef sNumber As String) As String

@@ -16,6 +16,7 @@ Module WindowHandling
 
     ' Read definitions from configuration
     Public bFeatureSearchPhonenumber As Boolean = App._appConfig.GetProperty("bFeatureSearchPhonenumber", True)
+    Public bFeatureSearchGDT As Boolean = App._appConfig.GetProperty("bFeatureSearchGDT", False)
     Public wndT2Class As String = App._appConfig.GetProperty("wndT2Class", "GlassWndClass-GlassWindowClass-")
     Public wndT2Caption As String = App._appConfig.GetProperty("wndT2Caption", "t2med")
     Public wndT2SearchControlHeight As Integer = App._appConfig.GetProperty("wndT2SearchControlHeight", 53)
@@ -55,7 +56,7 @@ Module WindowHandling
     End Function
 
     Public Function T2medSearchID(ByVal sSearch As String) As Integer
-        sSearch = " #123457846" 'just for debugging
+        'sSearch = " #123457846" 'just for debugging
         Dim iHash As Integer = InStr(sSearch, "#")
         Dim sPatientSearch As String
 
@@ -78,6 +79,20 @@ Module WindowHandling
     End Function
 
     Public Function T2medSearch(ByVal sPatient As String) As Integer
+        If bFeatureSearchGDT Then
+            ' Search via GDT-Entry
+            DebugPrint("T2medSearch: GDT")
+            Return T2medSearchGDT(sPatient)
+
+        Else
+            ' Search via GUI
+            DebugPrint("T2medSearch: GUI")
+            Return T2medSearchGUI(sPatient)
+        End If
+
+    End Function
+
+    Public Function T2medSearchGUI(ByVal sPatient As String) As Integer
 
         Dim hT2med As Long = FocusWindow(wndT2Caption, wndT2Class)
         'get handle for T2Med Client
@@ -115,7 +130,7 @@ Module WindowHandling
                             valPattern.SetValue(sPatient)
                             Thread.Sleep(1000)
                             nextElement.SetFocus()
-                            SendKeys.Send("~")
+                            SendKeys.SendWait("~")
                             Return 0 ' OK
                         End If
                     End If
