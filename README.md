@@ -86,6 +86,11 @@ Beispielkonfiguration:
         <add key="wndT2Class" value="GlassWndClass-GlassWindowClass-" />
         <add key="wndT2Caption" value="t2med" />
 	<add key="wndT2SearchControlHeight" value="53" />
+	<!-- neue Funktionen ab v1.2: bWriteLogFile = True schreibt TrayApp.exe.log mit Debuginformationen --> 
+	<add key="bWriteLogfile" value="True" />
+	<!-- neue Funktionen ab v1.2: bFeatureSearchGDT = True nutzt optional die GDT-Schnittstelle um die Patientenakte zu öffnen -->
+	<add key="bFeatureSearchGDT" value="True" />
+	<add key="sGDTFile" value="C:\GDT\TAPIT2MED.GDT" />
     </appSettings>
 </configuration>
 ```
@@ -103,11 +108,26 @@ Die Hotkey-Taste kann angepasst werden (siehe Konfigurationsdatei). Für die Kon
 
 Die zweite Hotkey-Taste (aktuell *F9*) springt lediglich in das Suchfeld von T2med.
 
+**Erweiterungen mit Version 1.2**
+* Für Debugzwecke/Debugsuche kann die Option *bWriteLogFile = True* gesetzt werden, dadurch wird im Applikationsverzeichnis eine Logdatei (TrayApp.exe.log) erzeugt
+* Um direkt eine Patientenakte programmatisch aufzurufen, kann TrayApp mit Parameter -id #<PatientenID> aufgerufen werden.
+```bash
+TrayApp.exe -id #123456    --> springt zur Patientenakte 123456
+```
+* Da die Suche über die T2Med-GUI nicht optimal ist, kann nun *alternativ* die Patientenakte über die GDT-Schnittstelle geöffnet werden (bFeatureSearchGDT = True). Dadurch wird in einem Austauschverzeichnis eine einfache GDT-Datei (über *sGDTFile* konfigurierbar) geschrieben, welche lediglich die PatientenID überträgt und die Patientenakte öffnet.
+  
+  Vielen Dank nochmals an Manuel Mühling für den Tipp zu GDT und stavismed für das GDT-Beispiel.
+
+  Die Konfiguration in T2Med hierzu sieht wie folgt aus:
+![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/GDT_Konfig1.JPG)
+![](https://github.com/INT3hex/TAPICallerID/blob/master/doc/GDT_Konfig2.JPG)
+
 ## Debuginformationen
-Die TrayApp erstellt aktuell kein Logfile - jedoch können interne Debuginformationen (z.B. Fehlermeldungen, Debugausgaben, usw.) zur Laufzeit mittels [Sysinternals DebugView](https://learn.microsoft.com/de-de/sysinternals/downloads/debugview) angezeigt werden.
+Für Debugzwecke/Debugsuche kann ab v1.2 die Option *bWriteLogFile = True* gesetzt werden, dadurch wird im Applikationsverzeichnis eine Logdatei (TrayApp.exe.log) erzeugt.
+Diesselben Debuginformationen (z.B. Fehlermeldungen, Debugausgaben, usw.) können zudem zur Laufzeit mittels [Sysinternals DebugView](https://learn.microsoft.com/de-de/sysinternals/downloads/debugview) angezeigt werden.
 
 Zur Diagnose der TAPI-Kommunikation ist [TapiCaps der Fa. ESTOS](https://support.estos.de/de/procall-enterprise/analyse-fuer-tapi-leitungen-trace-erzeugen-mit-tapicaps-exe) ein wertvolles Werkzeug.
 
 ## Disclaimer
-Für die Nutzung, Eignung, Fehlerfreiheit, Nützlichkeit etc. der Software wird keine Haftung übernommen. Die Anwendung und Anleitung wurde nach bestem Wissen erstellt. Der Quellcode kann eingesehen (und beliebig kopiert und verändert) werden. Das bereitgestellte Binärfile TrayApp.exe in v1.1 wurde bei Virustotal validiert. 
-[Virustotal Analyse](https://www.virustotal.com/gui/file/257b04d4eb2c23d18cd599f2153b63881d8b6937dc3dbee7384cd840d83e3659)
+Für die Nutzung, Eignung, Fehlerfreiheit, Nützlichkeit etc. der Software wird keine Haftung übernommen. Die Anwendung und Anleitung wurde nach bestem Wissen erstellt. Der Quellcode kann eingesehen (und beliebig kopiert und verändert) werden. Das bereitgestellte Binärfile TrayApp.exe in v1.2 wurde bei Virustotal validiert. 
+[Virustotal Analyse](https://www.virustotal.com/gui/file/6cef17d83bce5ebe3f45107a7e5417cc5841870a4419079de7099a3f00eb074a)
